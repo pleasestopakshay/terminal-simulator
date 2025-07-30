@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Simulator - Practice Commands</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tailwind.config.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-terminal-bg text-matrix-green font-mono min-h-screen matrix-bg overflow-x-hidden">
+    <div class="scan-line"></div>
+    
+    <nav class="bg-black bg-opacity-80 backdrop-blur-sm border-b border-terminal-border sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between flex-wrap">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl md:text-2xl font-bold animate-glow">
+                        ~/terminal
+                    </h1>
+                    <span class="hidden sm:block text-sm opacity-70">bash 5.1.8</span>
+                </div>
+                <div class="flex items-center space-x-4 mt-2 sm:mt-0">
+                    <button id="toggleMode" class="px-3 py-1 border border-green-400 rounded hover:bg-green-400 hover:text-black transition-colors">
+                        SLOW
+                    </button>
+                    <button id="clearTerminal" class="px-3 py-1 border border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-black transition-colors">
+                        CLEAR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-6">
+        <div class="grid lg:grid-cols-4 gap-6">
+            <div class="lg:col-span-1 space-y-4">
+                <div class="bg-black bg-opacity-60 border border-terminal-border rounded-lg p-4">
+                    <h3 class="text-lg font-bold mb-3 text-green-400 animate-glow">SYSTEM INFO</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>USER:</span>
+                            <span class="text-green-400">user</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>SHELL:</span>
+                            <span class="text-green-400">/bin/bash</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>HOME:</span>
+                            <span class="text-green-400">/home/user</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>UPTIME:</span>
+                            <span class="text-yellow-400">2h 34m</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-black bg-opacity-60 border border-terminal-border rounded-lg p-4">
+                    <h3 class="text-lg font-bold mb-3 text-green-400">QUICK COMMANDS</h3>
+                    <div class="space-y-2">
+                        <button class="w-full text-left px-2 py-1 rounded hover:bg-green-400 hover:text-black transition-colors text-sm" onclick="addToTerminal('ls -la')">
+                            list files
+                        </button>
+                        <button class="w-full text-left px-2 py-1 rounded hover:bg-green-400 hover:text-black transition-colors text-sm" onclick="addToTerminal('ps aux')">
+                            show processes
+                        </button>
+                        <button class="w-full text-left px-2 py-1 rounded hover:bg-green-400 hover:text-black transition-colors text-sm" onclick="addToTerminal('whoami')">
+                            current user
+                        </button>
+                        <button class="w-full text-left px-2 py-1 rounded hover:bg-green-400 hover:text-black transition-colors text-sm" onclick="addToTerminal('pwd')">
+                            current directory
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-black bg-opacity-60 border border-terminal-border rounded-lg p-4">
+                    <h3 class="text-lg font-bold mb-3 text-blue-400">RECENT FILES</h3>
+                    <div class="space-y-2 text-sm">
+                        <div>notes.txt <span class="text-gray-500">2KB</span></div>
+                        <div>scripts/ <span class="text-blue-400">folder</span></div>
+                        <div>.bashrc <span class="text-yellow-400">config</span></div>
+                        <div>README.md <span class="text-green-400">docs</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-3">
+                <div class="bg-black bg-opacity-80 border border-terminal-border rounded-t-lg p-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex space-x-1">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            </div>
+                            <span class="text-sm">user@system:~$</span>
+                        </div>
+                        <div class="text-sm opacity-70" id="currentTime"></div>
+                    </div>
+                </div>
+
+                <div class="bg-black bg-opacity-90 border-x border-terminal-border min-h-96 p-4 font-mono text-sm">
+                    <div id="terminal-output" class="space-y-1 mb-4">
+                        <div class="text-green-400">Terminal v1.2.3 initialized</div>
+                        <div class="text-gray-400">Start typing commands...</div>
+                        <div class="text-yellow-400">Tip: Press Enter to execute</div>
+                        <div class="text-green-400">user@system:~$ <span id="typed-text" class="typing-effect"></span></div>
+                    </div>
+                </div>
+
+                <div class="bg-black bg-opacity-60 border border-terminal-border rounded-b-lg p-4">
+                    <h4 class="text-green-400 font-bold mb-2">HOW TO USE:</h4>
+                    <ul class="text-sm space-y-1 text-gray-300">
+                        <li>• Type any command and press Enter to execute</li>
+                        <li>• Use sidebar buttons for common commands</li>
+                        <li>• Backspace to delete characters</li>
+                        <li>• Clear button resets the terminal</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-black bg-opacity-60 border border-terminal-border rounded-lg p-6 hover:border-green-400 transition-colors">
+                <div class="flex items-center mb-3">
+                    <div class="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
+                    <h3 class="text-lg font-bold text-green-400">FILE OPERATIONS</h3>
+                </div>
+                <p class="text-gray-300 text-sm mb-4">Basic file and directory management commands for navigation and file handling.</p>
+                <div class="text-xs text-gray-400">
+                    <div>• ls, cd, mkdir commands</div>
+                    <div>• File permissions</div>
+                    <div>• Directory navigation</div>
+                </div>
+            </div>
+
+            <div class="bg-black bg-opacity-60 border border-terminal-border rounded-lg p-6 hover:border-green-400 transition-colors">
+                <div class="flex items-center mb-3">
+                    <div class="w-3 h-3 bg-blue-400 rounded-full mr-3 animate-pulse"></div>
+                    <h3 class="text-lg font-bold text-green-400">SYSTEM MONITORING</h3>
+                </div>
+                <p class="text-gray-300 text-sm mb-4">Monitor system processes, memory usage, and network connections.</p>
+                <div class="text-xs text-gray-400">
+                    <div>• Process management</div>
+                    <div>• Memory monitoring</div>
+                    <div>• Network status</div>
+                </div>
+            </div>
+
+            <div class="bg-black bg-opacity-60 border border-terminal-border rounded-lg p-6 hover:border-green-400 transition-colors">
+                <div class="flex items-center mb-3">
+                    <div class="w-3 h-3 bg-yellow-400 rounded-full mr-3 animate-pulse"></div>
+                    <h3 class="text-lg font-bold text-green-400">TEXT PROCESSING</h3>
+                </div>
+                <p class="text-gray-300 text-sm mb-4">Text manipulation and file content analysis using command line tools.</p>
+                <div class="text-xs text-gray-400">
+                    <div>• grep, sed, awk</div>
+                    <div>• File searching</div>
+                    <div>• Text filtering</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 bg-black bg-opacity-60 border border-terminal-border rounded-lg p-6">
+            <h2 class="text-2xl font-bold text-green-400 mb-6 animate-glow">COMMON QUESTIONS</h2>
+            <div class="space-y-4">
+                <details class="group">
+                    <summary class="cursor-pointer text-green-400 font-semibold hover:text-white transition-colors list-none">
+                        <span class="select-none">▶ What commands can I type?</span>
+                    </summary>
+                    <div class="mt-2 pl-4 text-gray-300 text-sm">
+                        You can type any text and the terminal will simulate realistic command responses. Try commands like 'ls', 'pwd', 'whoami', or just type random text to see system responses.
+                    </div>
+                </details>
+                
+                <details class="group">
+                    <summary class="cursor-pointer text-green-400 font-semibold hover:text-white transition-colors list-none">
+                        <span class="select-none">▶ How do I execute commands?</span>
+                    </summary>
+                    <div class="mt-2 pl-4 text-gray-300 text-sm">
+                        Simply press Enter after typing your command, or wait a moment and the system will auto-execute. You can also use the quick command buttons on the left.
+                    </div>
+                </details>
+                
+                <details class="group">
+                    <summary class="cursor-pointer text-green-400 font-semibold hover:text-white transition-colors list-none">
+                        <span class="select-none">▶ Can I delete what I typed?</span>
+                    </summary>
+                    <div class="mt-2 pl-4 text-gray-300 text-sm">
+                        Yes! Use the Backspace key to delete characters you've typed. The terminal behaves like a real command line interface.
+                    </div>
+                </details>
+                
+                <details class="group">
+                    <summary class="cursor-pointer text-green-400 font-semibold hover:text-white transition-colors list-none">
+                        <span class="select-none">▶ What's the difference between SLOW and FAST mode?</span>
+                    </summary>
+                    <div class="mt-2 pl-4 text-gray-300 text-sm">
+                        SLOW mode adds realistic delays to make the terminal feel more authentic, while FAST mode executes commands immediately for quick demonstrations.
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-black bg-opacity-80 border-t border-terminal-border mt-12">
+        <div class="container mx-auto px-4 py-6">
+            <div class="grid md:grid-cols-3 gap-6 text-sm">
+                <div>
+                    <h4 class="text-green-400 font-bold mb-3">TERMINAL SIMULATOR</h4>
+                    <p class="text-gray-400">
+                        A simple terminal interface for practicing command line skills 
+                        and learning basic Unix/Linux commands.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-green-400 font-bold mb-3">FEATURES</h4>
+                    <ul class="text-gray-400 space-y-1">
+                        <li>• Real-time typing simulation</li>
+                        <li>• Basic command responses</li>
+                        <li>• File system simulation</li>
+                        <li>• Process monitoring</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-green-400 font-bold mb-3">EDUCATIONAL USE</h4>
+                    <p class="text-gray-400">
+                        This simulator helps users learn command line basics in a 
+                        safe, contained environment. Great for demos and learning.
+                    </p>
+                </div>
+            </div>
+            <div class="border-t border-terminal-border mt-6 pt-4 text-center text-gray-500">
+                <p>&copy; 2025 Terminal Simulator. Educational tool for learning command line interfaces.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
